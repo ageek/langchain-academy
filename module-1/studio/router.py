@@ -18,6 +18,25 @@ def multiply(a: int, b: int) -> int:
     """
     return a * b
 
+# Tool 
+def add(a: int, b: int) -> int:
+    """Adds a and b.
+
+    Args:
+        a: first int
+        b: second int
+    """
+    return a + b
+
+def subtract(a: int, b: int) -> int:
+    """Subtracts b from a.
+
+    Args:
+        a: first int
+        b: second int
+    """
+    return a - b
+
 # LLM with bound tool
 # Define LLM with bound tools
 
@@ -37,7 +56,7 @@ my_llm = ChatSambaNovaCloud(
     top_p=0.01,
 )
 
-llm_with_tools = my_llm.bind_tools([multiply])
+llm_with_tools = my_llm.bind_tools([multiply, add, subtract])
 
 # Node
 def tool_calling_llm(state: MessagesState):
@@ -46,7 +65,10 @@ def tool_calling_llm(state: MessagesState):
 # Build graph
 builder = StateGraph(MessagesState)
 builder.add_node("tool_calling_llm", tool_calling_llm)
-builder.add_node("tools", ToolNode([multiply]))
+# add all tool nodes to the graph
+builder.add_node("tools", ToolNode([multiply, add, subtract]))
+
+# Define edges
 builder.add_edge(START, "tool_calling_llm")
 builder.add_conditional_edges(
     "tool_calling_llm",
